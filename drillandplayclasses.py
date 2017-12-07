@@ -8,7 +8,7 @@ Created on Tue Nov 28 22:50:56 2017
 
 import requests, os, bs4, re, selenium
 
-def getSignupPage():
+def getSignupPages():
     #pull the password from a file so that this can be shared
     #should return a webpage that soup can use
     from selenium import webdriver
@@ -23,10 +23,13 @@ def getSignupPage():
     
     classesTab = browser.find_element_by_id('tabA7') 
     classesTab.click()
-    #should get both this week's sign up page and next week's too (right now only looks at next wk)
-    #nextWeekBtn = browser.find_element_by_id('week-arrow-r')
-    #nextWeekBtn.click()
-    return browser.page_source
+    currentWeekPage = browser.page_source
+
+    nextWeekBtn = browser.find_element_by_id('week-arrow-r')
+    nextWeekBtn.click()
+    nextWeekPage = browser.page_source
+    
+    return (currentWeekPage, nextWeekPage)
     
 
 def getDrillAndPlays(soup):
@@ -67,9 +70,13 @@ def getSignUpInfo(openDrills):
                 drillInfo.append((drillDate, time, 'Yorkville'))
     return drillInfo
 
-signupPage = getSignupPage()
-soup = bs4.BeautifulSoup(signupPage, 'lxml')
-drillAndPlays = getDrillAndPlays(soup)
-openDrills = getOpenDrills(drillAndPlays) 
-openDrillInfo = getSignUpInfo(openDrills)
-print(openDrillInfo)
+def getOpenDrillInfo(signupPage):
+    soup = bs4.BeautifulSoup(signupPage, 'lxml')
+    drillAndPlays = getDrillAndPlays(soup)
+    openDrills = getOpenDrills(drillAndPlays) 
+    openDrillInfo = getSignUpInfo(openDrills)
+    return openDrillInfo
+
+(currentWeekPage, nextWeekPage) = getSignupPages()
+openDrills = getOpenDrillInfo(currentWeekPage) + getOpenDrillInfo(nextWeekPage)
+print(openDrills)
