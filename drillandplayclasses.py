@@ -6,15 +6,20 @@ Created on Tue Nov 28 22:50:56 2017
 @author: brianlee
 """
 
-import requests, os, bs4, re, selenium, shelve
+import requests, os, bs4, re, selenium, shelve, datetime
+
+#TODO: Add some test function that uses a saved version of the website so it's quicker to test
+#TODO: Text me the open classes
+#TODO: Call itself at some sort of set times and log the results
+#TODO: Sign up for the classes based on user text input
+#TODO: Analyze which time of day have the most openings
 
 def getSignupPages():
-    #pull the password from a file so that this can be shared
-    #should return a webpage that soup can use
     from selenium import webdriver
     browser = webdriver.Chrome('/Users/brianlee/chromedriver')
     browser.get('https://clients.mindbodyonline.com/classic/home?studioid=35181')
     
+    #get and then input user info
     emailElem = browser.find_element_by_id('requiredtxtUserName')
     userData = shelve.open('userData')
     emailElem.send_keys(userData['email'])
@@ -34,7 +39,6 @@ def getSignupPages():
     
     return (currentWeekPage, nextWeekPage)
     
-
 def getDrillAndPlays(soup):
     tableRows = soup.select('tr')
     drillAndPlays = [rows for rows in tableRows if "Drill & Play" in rows.getText()][1:]
@@ -65,12 +69,13 @@ def getSignUpInfo(openDrills):
             pass
         else:
             drillDate = dateRegexMatch.group(1)
-            #add day of week
+            drillDateTime = datetime.datetime.strptime(drillDate, '%m/%d/%Y')
+            formattedDate = drillDateTime.strftime('%b-%d, %a')
             time = drill.select('td')[0].getText().replace('\xa0', '')
             if 'SUTTON EAST' in drillHTML:
-                drillInfo.append((drillDate, time, 'Sutton East'))
+                drillInfo.append((formattedDate, time, 'Sutton East'))
             else:
-                drillInfo.append((drillDate, time, 'Yorkville'))
+                drillInfo.append((formattedDate, time, 'Yorkville'))
     return drillInfo
 
 def getOpenDrillInfo(signupPage):
