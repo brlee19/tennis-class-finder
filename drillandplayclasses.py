@@ -6,7 +6,7 @@ Created on Tue Nov 28 22:50:56 2017
 @author: brianlee
 """
 
-import requests, os, bs4, re, selenium
+import requests, os, bs4, re, selenium, shelve
 
 def getSignupPages():
     #pull the password from a file so that this can be shared
@@ -14,10 +14,13 @@ def getSignupPages():
     from selenium import webdriver
     browser = webdriver.Chrome('/Users/brianlee/chromedriver')
     browser.get('https://clients.mindbodyonline.com/classic/home?studioid=35181')
+    
     emailElem = browser.find_element_by_id('requiredtxtUserName')
-    emailElem.send_keys('blee@nyu.edu')
+    userData = shelve.open('userData')
+    emailElem.send_keys(userData['email'])
     passwordElem = browser.find_element_by_id('requiredtxtPassword')
-    passwordElem.send_keys('5HrR2@K9%R')
+    passwordElem.send_keys(userData['password'])
+    userData.close()
     loginElem = browser.find_element_by_id('btnLogin')
     loginElem.click()
     
