@@ -6,10 +6,9 @@ Created on Tue Nov 28 22:50:56 2017
 @author: brianlee
 """
 
-import requests, os, bs4, re, selenium, shelve, datetime
+import requests, os, bs4, re, selenium, shelve, datetime, twilio
 
 #TODO: Add some test function that uses a saved version of the website so it's quicker to test
-#TODO: Text me the open classes
 #TODO: Call itself at some sort of set times and log the results
 #TODO: Sign up for the classes based on user text input
 #TODO: Analyze which time of day have the most openings
@@ -85,6 +84,17 @@ def getOpenDrillInfo(signupPage):
     openDrillInfo = getSignUpInfo(openDrills)
     return openDrillInfo
 
+def textOpenDrillInfo(openDrills):
+    from twilio.rest import Client
+    userData = shelve.open('userData')
+    twilioData = userData['twilio']
+    twilioCli = Client(twilioData['accountSID'], twilioData['authToken'])
+    twilioNumber = twilioData['twilioNumber']
+    cellPhone = twilioData['cellPhone']
+    
+    message = twilioCli.messages.create(cellPhone, body=str(openDrills), from_=twilioNumber)
+
+
 (currentWeekPage, nextWeekPage) = getSignupPages()
 openDrills = getOpenDrillInfo(currentWeekPage) + getOpenDrillInfo(nextWeekPage)
-print(openDrills)
+textOpenDrillInfo(openDrills)
