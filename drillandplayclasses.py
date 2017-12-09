@@ -5,13 +5,30 @@ Created on Tue Nov 28 22:50:56 2017
 
 @author: brianlee
 """
-
-import requests, os, bs4, re, selenium, shelve, datetime, twilio
-
-#TODO: Add some test function that uses a saved version of the website so it's quicker to test
+#TODO: Add some test function that uses a saved version of the website and doesn't use up a twilio text
+#so it's quicker to test (could be a sys arg)
 #TODO: Call itself at some sort of set times and log the results
 #TODO: Sign up for the classes based on user text input
 #TODO: Analyze which time of day have the most openings
+#TODO: Find a better way to import the right directories so this can be run from Terminal
+
+#Below adds the right dirs when running from Terminal
+import sys
+dirs = ('/anaconda/lib/python36.zip',
+'/anaconda/lib/python3.6',
+'/anaconda/lib/python3.6/lib-dynload',
+'/Users/brianlee/.local/lib/python3.6/site-packages',
+'/anaconda/lib/python3.6/site-packages',
+'/anaconda/lib/python3.6/site-packages/Sphinx-1.5.1-py3.6.egg',
+'/anaconda/lib/python3.6/site-packages/aeosa',
+'/anaconda/lib/python3.6/site-packages/IPython/extensions',
+'/Users/brianlee/.ipython')
+for folder in dirs:
+    sys.path.append(folder)
+    
+import os, bs4, re, shelve, datetime
+
+os.chdir('/users/brianlee/documents/python/drill_and_plays')
 
 def getSignupPages():
     from selenium import webdriver
@@ -50,6 +67,7 @@ def getOpenDrills(drillAndPlays):
     for drill in futureDrills:
         drillText = drill.getText().replace('\xa0', '')
         regexMatch = openRegex.search(drillText)
+        #refactor the below...will 'if regexMatch' work?
         if regexMatch == None or 'Private' in drillText:
             pass
         else:
@@ -92,7 +110,7 @@ def textOpenDrillInfo(openDrills):
     twilioNumber = twilioData['twilioNumber']
     cellPhone = twilioData['cellPhone']
     
-    message = twilioCli.messages.create(cellPhone, body=str(openDrills), from_=twilioNumber)
+    twilioCli.messages.create(cellPhone, body=str(openDrills), from_=twilioNumber)
 
 
 (currentWeekPage, nextWeekPage) = getSignupPages()
