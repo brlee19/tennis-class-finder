@@ -5,8 +5,6 @@ Created on Tue Nov 28 22:50:56 2017
 
 @author: brianlee
 """
-#TODO: Add some test function that uses a saved version of the website and doesn't use up a twilio text
-#so it's quicker to test (could be a sys arg)
 #TODO: Call itself at some sort of set times and log the results
 #TODO: Sign up for the classes based on user text input
 #TODO: Analyze which time of day have the most openings
@@ -112,7 +110,17 @@ def textOpenDrillInfo(openDrills):
     
     twilioCli.messages.create(cellPhone, body=str(openDrills), from_=twilioNumber)
 
+def testRun():
+    '''analyzes a saved version of the website and prints the result to console
+    instead of texting it'''
+    
+    testHTML = open('./examples for testing/tennis2.htm')
+    testOpenDrills = getOpenDrillInfo(testHTML)
+    print(testOpenDrills)
 
-(currentWeekPage, nextWeekPage) = getSignupPages()
-openDrills = getOpenDrillInfo(currentWeekPage) + getOpenDrillInfo(nextWeekPage)
-textOpenDrillInfo(openDrills)
+if len(sys.argv) == 2 and sys.argv[1].lower() == 'test':
+    testRun()
+else:
+    (currentWeekPage, nextWeekPage) = getSignupPages()
+    openDrills = getOpenDrillInfo(currentWeekPage) + getOpenDrillInfo(nextWeekPage)
+    textOpenDrillInfo(openDrills)
