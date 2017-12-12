@@ -72,7 +72,7 @@ def getOpenDrills(drillAndPlays):
     return openDrills
 
 def getSignUpInfo(openDrills):
-    drillInfo = [] #list of tuples (date, court)
+    drillInfo = ''
     dateRegex = re.compile('classDate\=(\d{1,2}/\d{1,2}/\d{4})')
     for drill in openDrills:
         drillHTML = str(drill)
@@ -80,12 +80,13 @@ def getSignUpInfo(openDrills):
         if dateRegexMatch:
             drillDate = dateRegexMatch.group(1)
             drillDateTime = datetime.datetime.strptime(drillDate, '%m/%d/%Y')
-            formattedDate = drillDateTime.strftime('%b-%d, %a')
+            formattedDate = drillDateTime.strftime('%b-%d (%a) ')
             time = drill.select('td')[0].getText().replace('\xa0', '')
+            drillInfo += formattedDate + time +' '
             if 'SUTTON EAST' in drillHTML:
-                drillInfo.append((formattedDate, time, 'Sutton East'))
+                drillInfo += 'Sutton East\n'
             else:
-                drillInfo.append((formattedDate, time, 'Yorkville'))
+                drillInfo += 'Yorkville\n'
     return drillInfo
 
 def getOpenDrillInfo(signupPage):
