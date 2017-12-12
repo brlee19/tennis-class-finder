@@ -65,10 +65,7 @@ def getOpenDrills(drillAndPlays):
     for drill in futureDrills:
         drillText = drill.getText().replace('\xa0', '')
         regexMatch = openRegex.search(drillText)
-        #refactor the below...will 'if regexMatch' work?
-        if regexMatch == None or 'Private' in drillText:
-            pass
-        else:
+        if regexMatch and 'Private' not in drillText:
             openSpots = int(regexMatch.group(1))
             if openSpots > 0:
                 openDrills.append(drill)
@@ -80,9 +77,7 @@ def getSignUpInfo(openDrills):
     for drill in openDrills:
         drillHTML = str(drill)
         dateRegexMatch = dateRegex.search(drillHTML)
-        if dateRegexMatch == None:
-            pass
-        else:
+        if dateRegexMatch:
             drillDate = dateRegexMatch.group(1)
             drillDateTime = datetime.datetime.strptime(drillDate, '%m/%d/%Y')
             formattedDate = drillDateTime.strftime('%b-%d, %a')
