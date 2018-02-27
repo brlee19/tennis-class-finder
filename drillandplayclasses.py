@@ -46,12 +46,15 @@ def getSignupPages():
     classesTab = browser.find_element_by_id('tabA7') 
     classesTab.click()
     currentWeekPage = browser.page_source
+    signup_pages = [currentWeekPage]
 
-    nextWeekBtn = browser.find_element_by_id('week-arrow-r')
-    nextWeekBtn.click()
-    nextWeekPage = browser.page_source
+    for i in range(10):
+        nextWeekBtn = browser.find_element_by_id('week-arrow-r')
+        nextWeekBtn.click()
+        nextWeekPage = browser.page_source
+        signup_pages.append(nextWeekPage)
     
-    return (currentWeekPage, nextWeekPage)
+    return signup_pages
     
 def getDrillAndPlays(soup):
     tableRows = soup.select('tr')
@@ -71,7 +74,8 @@ def getOpenDrills(drillAndPlays):
                 openDrills.append(drill)
     return openDrills
 
-def getSignUpInfo(openDrills):
+def getSignUpInfo(openDrills, venue=None):
+    # venue is "Sutton East" or "Yorkville"
     drillInfo = ''
     dateRegex = re.compile('classDate\=(\d{1,2}/\d{1,2}/\d{4})')
     for drill in openDrills:
@@ -83,17 +87,20 @@ def getSignUpInfo(openDrills):
             formattedDate = drillDateTime.strftime('%b-%d (%a) ')
             time = drill.select('td')[0].getText().replace('\xa0', '')
             drillInfo += formattedDate + time +' '
-            if 'SUTTON EAST' in drillHTML:
-                drillInfo += 'Sutton East\n'
-            else:
-                drillInfo += 'Yorkville\n'
+            if venue is None:
+                if 'SUTTON EAST' in drillHTML:
+                    drillInfo += 'Sutton East\n'
+                else:
+                    drillInfo += 'Yorkville\n'
+            elif venue.upper() in drillHTML: # site HTML uses all caps
+                drillInfo += venue + '\n'
     return drillInfo
 
 def getOpenDrillInfo(signupPage):
     soup = bs4.BeautifulSoup(signupPage, 'lxml')
     drillAndPlays = getDrillAndPlays(soup)
     openDrills = getOpenDrills(drillAndPlays) 
-    openDrillInfo = getSignUpInfo(openDrills)
+    openDrillInfo = getSignUpInfo(openDrills, 'Yorkville')
     return openDrillInfo
 
 def textOpenDrillInfo(openDrills):
@@ -117,6 +124,12 @@ def testRun():
 if len(sys.argv) == 2 and sys.argv[1].lower() == 'test':
     testRun()
 else:
-    (currentWeekPage, nextWeekPage) = getSignupPages()
-    openDrills = getOpenDrillInfo(currentWeekPage) + getOpenDrillInfo(nextWeekPage)
+    signup_pages = getSignupPages()
+    openDrills = ''
+    for page in signup_pages:
+        if len(openDrills) < 1000:
+            openDrills += getOpenDrillInfo(page)
+            print(openDrills)
+        else:
+            break
     textOpenDrillInfo(openDrills)
