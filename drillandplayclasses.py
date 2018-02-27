@@ -9,6 +9,8 @@ Created on Tue Nov 28 22:50:56 2017
 #TODO: Sign up for the classes based on user text input
 #TODO: Analyze which time of day have the most openings
 #TODO: Find a better way to import the right directories so this can be run from Terminal
+#TODO: Add a way to filter classes by time
+#TODO: Refactor so that global params (ie. venue) are in some sort of master wrapper function
 
 #Below adds the right dirs when running from Terminal
 import sys
@@ -48,7 +50,7 @@ def getSignupPages():
     currentWeekPage = browser.page_source
     signup_pages = [currentWeekPage]
 
-    for i in range(10):
+    for i in range(20):
         nextWeekBtn = browser.find_element_by_id('week-arrow-r')
         nextWeekBtn.click()
         nextWeekPage = browser.page_source
@@ -61,8 +63,12 @@ def getDrillAndPlays(soup):
     drillAndPlays = [rows for rows in tableRows if "Drill & Play" in rows.getText()][1:]
     return drillAndPlays
 
-def getOpenDrills(drillAndPlays):
-    futureDrills = [drills for drills in drillAndPlays if 'Reserved' in drills.getText()]
+def getOpenDrills(drillAndPlays, venue=None):
+    if venue:
+        #if specifying one venue
+        futureDrills = [drills for drills in drillAndPlays if 'Reserved' in drills.getText() and venue.upper() in drills.getText()]
+    else:
+        futureDrills = [drills for drills in drillAndPlays if 'Reserved' in drills.getText()]
     openRegex = re.compile(r'(\d{1,2})Open')
     openDrills = []
     for drill in futureDrills:
@@ -74,7 +80,7 @@ def getOpenDrills(drillAndPlays):
                 openDrills.append(drill)
     return openDrills
 
-def getSignUpInfo(openDrills, venue=None):
+def getSignUpInfo(openDrills):
     # venue is "Sutton East" or "Yorkville"
     drillInfo = ''
     dateRegex = re.compile('classDate\=(\d{1,2}/\d{1,2}/\d{4})')
@@ -86,21 +92,18 @@ def getSignUpInfo(openDrills, venue=None):
             drillDateTime = datetime.datetime.strptime(drillDate, '%m/%d/%Y')
             formattedDate = drillDateTime.strftime('%b-%d (%a) ')
             time = drill.select('td')[0].getText().replace('\xa0', '')
-            drillInfo += formattedDate + time +' '
-            if venue is None:
-                if 'SUTTON EAST' in drillHTML:
-                    drillInfo += 'Sutton East\n'
-                else:
-                    drillInfo += 'Yorkville\n'
-            elif venue.upper() in drillHTML: # site HTML uses all caps
-                drillInfo += venue + '\n'
+            drillInfo += formattedDate + time + ' '
+            if 'SUTTON EAST' in drillHTML:
+                drillInfo += 'Sutton East\n'
+            else:
+                drillInfo += 'Yorkville\n'
     return drillInfo
 
 def getOpenDrillInfo(signupPage):
     soup = bs4.BeautifulSoup(signupPage, 'lxml')
     drillAndPlays = getDrillAndPlays(soup)
-    openDrills = getOpenDrills(drillAndPlays) 
-    openDrillInfo = getSignUpInfo(openDrills, 'Yorkville')
+    openDrills = getOpenDrills(drillAndPlays, 'Yorkville') #specify venue here
+    openDrillInfo = getSignUpInfo(openDrills)
     return openDrillInfo
 
 def textOpenDrillInfo(openDrills):
@@ -127,7 +130,7 @@ else:
     signup_pages = getSignupPages()
     openDrills = ''
     for page in signup_pages:
-        if len(openDrills) < 1000:
+        if len(openDrills) < 1500:
             openDrills += getOpenDrillInfo(page)
             print(openDrills)
         else:
