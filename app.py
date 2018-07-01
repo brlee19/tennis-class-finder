@@ -30,6 +30,7 @@ def getSignupPages():
     
     #get and then input user info
     emailElem = browser.find_element_by_id('requiredtxtUserName')
+    print('email is %s' % config.EMAIL)
     emailElem.send_keys(config.EMAIL)
     passwordElem = browser.find_element_by_id('requiredtxtPassword')
     passwordElem.send_keys(config.PASSWORD)
