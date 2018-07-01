@@ -1,0 +1,1 @@
+window.MB=window.MB||{},window.MB.urlHelper={getUrlParameter:function(a,b){b=b||window.location.href;for(var c,d=b.indexOf("#")>-1?b.indexOf("#"):void 0,e=b.substring(b.indexOf("?")+1,d),f=e.split("&"),g=0;g<f.length;g++)if(c=f[g].split("="),c[0]===a)return void 0===c[1]?"":decodeURIComponent(c[1]);return""}};

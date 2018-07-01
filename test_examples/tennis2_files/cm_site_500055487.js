@@ -1,0 +1,1 @@
+var isAndroid=function(){if(/android/gi.test(navigator.userAgent.toLowerCase()))return!0},isIos=function(){var a=/iphone/gi.test(navigator.userAgent.toLowerCase()),b=/ipad/gi.test(navigator.userAgent.toLowerCase());if(a||b)return!0};$(function(){isAndroid()&&$("body").addClass("cm-android"),isIos()&&$("body").addClass("cm-ios")});

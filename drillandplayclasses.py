@@ -34,6 +34,7 @@ def getSignupPages():
     from selenium import webdriver
     browser = webdriver.Chrome('/Users/brianlee/chromedriver')
     browser.get('https://clients.mindbodyonline.com/classic/home?studioid=35181')
+    browser.implicitly_wait(20)
     
     #get and then input user info
     emailElem = browser.find_element_by_id('requiredtxtUserName')
@@ -100,6 +101,7 @@ def getSignUpInfo(openDrills):
     return drillInfo
 
 def getOpenDrillInfo(signupPage):
+
     soup = bs4.BeautifulSoup(signupPage, 'lxml')
     drillAndPlays = getDrillAndPlays(soup)
     openDrills = getOpenDrills(drillAndPlays, 'Yorkville') #specify venue here
@@ -120,7 +122,7 @@ def testRun():
     '''analyzes a saved version of the website and prints the result to console
     instead of texting it'''
     
-    testHTML = open('./examples for testing/tennis2.htm')
+    testHTML = open('./test_examples/tennis2.htm')
     testOpenDrills = getOpenDrillInfo(testHTML)
     print(testOpenDrills)
 

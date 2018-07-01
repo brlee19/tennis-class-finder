@@ -1,0 +1,1 @@
+"undefined"!=typeof $&&$(function(){$(".for-tinymce").live("click",function(a){"undefined"!=typeof tinyMCE&&(a.preventDefault(),tinyMCE.get($(this).prop("for")).focus())});var a=$(".userHTML table");""!=a.attr("border")&&a.find("td, th").css("border","1px solid black")});
