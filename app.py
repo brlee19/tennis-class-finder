@@ -14,35 +14,25 @@ Created on Tue Nov 28 22:50:56 2017
 
 #Below adds the right dirs when running from Terminal
 import sys
-dirs = ('/anaconda/lib/python36.zip',
-'/anaconda/lib/python3.6',
-'/anaconda/lib/python3.6/lib-dynload',
-'/Users/brianlee/.local/lib/python3.6/site-packages',
-'/anaconda/lib/python3.6/site-packages',
-'/anaconda/lib/python3.6/site-packages/Sphinx-1.5.1-py3.6.egg',
-'/anaconda/lib/python3.6/site-packages/aeosa',
-'/anaconda/lib/python3.6/site-packages/IPython/extensions',
-'/Users/brianlee/.ipython')
+import config as config
+
+dirs = config.DIRS
 for folder in dirs:
     sys.path.append(folder)
     
-import os, bs4, re, shelve, datetime
-
-os.chdir('/users/brianlee/documents/python/drill_and_plays')
+import bs4, re, datetime
 
 def getSignupPages():
     from selenium import webdriver
-    browser = webdriver.Chrome('/Users/brianlee/chromedriver')
+    browser = webdriver.Chrome(config.WEBDRIVER_PATH)
     browser.get('https://clients.mindbodyonline.com/classic/home?studioid=35181')
     browser.implicitly_wait(20)
     
     #get and then input user info
     emailElem = browser.find_element_by_id('requiredtxtUserName')
-    userData = shelve.open('userData')
-    emailElem.send_keys(userData['email'])
+    emailElem.send_keys(config.EMAIL)
     passwordElem = browser.find_element_by_id('requiredtxtPassword')
-    passwordElem.send_keys(userData['password'])
-    userData.close()
+    passwordElem.send_keys(config.PASSWORD)
     loginElem = browser.find_element_by_id('btnLogin')
     loginElem.click()
     
@@ -110,8 +100,7 @@ def getOpenDrillInfo(signupPage):
 
 def textOpenDrillInfo(openDrills):
     from twilio.rest import Client
-    userData = shelve.open('userData')
-    twilioData = userData['twilio']
+    twilioData = config.TWILIO
     twilioCli = Client(twilioData['accountSID'], twilioData['authToken'])
     twilioNumber = twilioData['twilioNumber']
     cellPhone = twilioData['cellPhone']

@@ -2,3 +2,5 @@ __pycache__/
 userData.db
 .DS_Store
 test_examples/.DS_Store
+config.py
+.idea/workspace.xml
